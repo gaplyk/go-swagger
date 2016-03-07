@@ -30,7 +30,7 @@ type Refable struct {
 
 // MarshalJSON marshals the ref to json
 func (r Refable) MarshalJSON() ([]byte, error) {
-	return json.Marshal(r.Ref)
+	return r.Ref.MarshalJSON()
 }
 
 // UnmarshalJSON unmarshalss the ref from json

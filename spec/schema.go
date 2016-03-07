@@ -557,11 +557,11 @@ func (s Schema) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("vendor props %v", err)
 	}
-	b3, err := json.Marshal(s.Ref)
+	b3, err := s.Ref.MarshalJSON()
 	if err != nil {
 		return nil, fmt.Errorf("ref prop %v", err)
 	}
-	b4, err := json.Marshal(s.Schema)
+	b4, err := s.Schema.MarshalJSON()
 	if err != nil {
 		return nil, fmt.Errorf("schema prop %v", err)
 	}

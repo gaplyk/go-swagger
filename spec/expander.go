@@ -348,29 +348,6 @@ func ExpandSchema(schema *Schema, root interface{}, cache ResolutionCache) error
 	return nil
 }
 
-func expandSchemaItems(schema *Schema, resolver *schemaLoader) error {
-	if schema.Items != nil {
-		if schema.Items.Schema != nil {
-			sch := schema.Items.Schema
-			if sch.Ref.String() != "" || sch.Ref.IsRoot() || sch.Items != nil {
-				if err := expandSchema(sch, resolver); err != nil {
-					return err
-				}
-			}
-		}
-		for i := range schema.Items.Schemas {
-			sch := &(schema.Items.Schemas[i])
-			if sch.Ref.String() != "" || sch.Ref.IsRoot() || sch.Items != nil {
-				if err := expandSchema(sch, resolver); err != nil {
-					return err
-				}
-			}
-		}
-	}
-
-	return nil
-}
-
 func expandSchema(schema *Schema, resolver *schemaLoader) error {
 	if schema == nil {
 		return nil
@@ -393,133 +370,111 @@ func expandSchema(schema *Schema, resolver *schemaLoader) error {
 		*schema = currentSchema
 	}
 
-	if err := expandSchemaItems(schema, resolver); err != nil {
-		return err
+	if schema.Items != nil {
+		if schema.Items.Schema != nil {
+			sch := schema.Items.Schema
+			//if sch.Ref.String() != "" || sch.Ref.IsRoot() {
+			if err := expandSchema(sch, resolver); err != nil {
+				return err
+			}
+			//}
+		}
+		for i := range schema.Items.Schemas {
+			sch := &(schema.Items.Schemas[i])
+			//if sch.Ref.String() != "" || sch.Ref.IsRoot() {
+			if err := expandSchema(sch, resolver); err != nil {
+				return err
+			}
+			//}
+		}
 	}
 
 	for i := range schema.AllOf {
 		sch := &(schema.AllOf[i])
-		if err := expandSchemaItems(sch, resolver); err != nil {
+		//if sch.Ref.String() != "" || sch.Ref.IsRoot() {
+		if err := expandSchema(sch, resolver); err != nil {
 			return err
 		}
-		if sch.Ref.String() != "" || sch.Ref.IsRoot() {
-			if err := expandSchema(sch, resolver); err != nil {
-				return err
-			}
-		}
+		//}
 	}
 	for i := range schema.AnyOf {
 		sch := &(schema.AnyOf[i])
-		if err := expandSchemaItems(sch, resolver); err != nil {
+		//if sch.Ref.String() != "" || sch.Ref.IsRoot() {
+		if err := expandSchema(sch, resolver); err != nil {
 			return err
 		}
 
-		if sch.Ref.String() != "" || sch.Ref.IsRoot() {
-			if err := expandSchema(sch, resolver); err != nil {
-				return err
-			}
-
-		}
+		//}
 	}
 	for i := range schema.OneOf {
 		sch := &(schema.OneOf[i])
-		if err := expandSchemaItems(sch, resolver); err != nil {
+		//if sch.Ref.String() != "" || sch.Ref.IsRoot() {
+		if err := expandSchema(sch, resolver); err != nil {
 			return err
 		}
 
-		if sch.Ref.String() != "" || sch.Ref.IsRoot() {
-			if err := expandSchema(sch, resolver); err != nil {
-				return err
-			}
-
-		}
+		//}
 	}
 	if schema.Not != nil {
 		sch := schema.Not
-		if err := expandSchemaItems(sch, resolver); err != nil {
+		//if sch.Ref.String() != "" || sch.Ref.IsRoot() {
+		if err := expandSchema(sch, resolver); err != nil {
 			return err
 		}
 
-		if sch.Ref.String() != "" || sch.Ref.IsRoot() {
-			if err := expandSchema(sch, resolver); err != nil {
-				return err
-			}
-
-		}
+		//}
 	}
 	for k, v := range schema.Properties {
-		if err := expandSchemaItems(&v, resolver); err != nil {
+		//if v.Ref.String() != "" || v.Ref.IsRoot() {
+		if err := expandSchema(&v, resolver); err != nil {
 			return err
 		}
-
-		if v.Ref.String() != "" || v.Ref.IsRoot() {
-			if err := expandSchema(&v, resolver); err != nil {
-				return err
-			}
-		}
+		//}
 		schema.Properties[k] = v
 	}
 	if schema.AdditionalProperties != nil && schema.AdditionalProperties.Schema != nil {
 		sch := schema.AdditionalProperties.Schema
-		if err := expandSchemaItems(sch, resolver); err != nil {
-			return err
-		}
-
 		if err := expandSchema(sch, resolver); err != nil {
 			return err
 		}
 	}
 	for k, v := range schema.PatternProperties {
 		vp := &v
-		if err := expandSchemaItems(vp, resolver); err != nil {
+		//if vp.Ref.String() != "" || vp.Ref.IsRoot() {
+		if err := expandSchema(vp, resolver); err != nil {
 			return err
 		}
-
-		if vp.Ref.String() != "" || vp.Ref.IsRoot() {
-			if err := expandSchema(vp, resolver); err != nil {
-				return err
-			}
-		}
+		//}
 		schema.PatternProperties[k] = *vp
 	}
 	for k, v := range schema.Dependencies {
 		if v.Schema != nil {
 			sch := v.Schema
-			if err := expandSchemaItems(sch, resolver); err != nil {
+			//if sch.Ref.String() != "" || sch.Ref.IsRoot() {
+			if err := expandSchema(sch, resolver); err != nil {
 				return err
 			}
-			if sch.Ref.String() != "" || sch.Ref.IsRoot() {
-				if err := expandSchema(sch, resolver); err != nil {
-					return err
-				}
 
-			}
+			//}
 			schema.Dependencies[k] = v
 		}
 	}
 	if schema.AdditionalItems != nil && schema.AdditionalItems.Schema != nil {
 		sch := schema.AdditionalItems.Schema
-		if err := expandSchemaItems(sch, resolver); err != nil {
+		//if sch.Ref.String() != "" || sch.Ref.IsRoot() {
+		if err := expandSchema(sch, resolver); err != nil {
 			return err
 		}
 
-		if sch.Ref.String() != "" || sch.Ref.IsRoot() {
-			if err := expandSchema(sch, resolver); err != nil {
-				return err
-			}
-
-		}
+		//}
 	}
 	for k, v := range schema.Definitions {
-		if err := expandSchemaItems(&v, resolver); err != nil {
+		//if v.Ref.String() != "" || v.Ref.IsRoot() {
+		if err := expandSchema(&v, resolver); err != nil {
 			return err
 		}
-		if v.Ref.String() != "" || v.Ref.IsRoot() {
-			if err := expandSchema(&v, resolver); err != nil {
-				return err
-			}
 
-		}
+		//}
 		schema.Definitions[k] = v
 	}
 	return nil
