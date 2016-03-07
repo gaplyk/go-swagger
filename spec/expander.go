@@ -348,7 +348,7 @@ func ExpandSchema(schema *Schema, root interface{}, cache ResolutionCache) error
 	return nil
 }
 
-func expandItems(schema *Schema, resolver *schemaLoader) error {
+func expandSchemaItems(schema *Schema, resolver *schemaLoader) error {
 	if schema.Items != nil {
 		if schema.Items.Schema != nil {
 			sch := schema.Items.Schema
@@ -393,13 +393,13 @@ func expandSchema(schema *Schema, resolver *schemaLoader) error {
 		*schema = currentSchema
 	}
 
-	if err := expandItems(schema, resolver); err != nil {
+	if err := expandSchemaItems(schema, resolver); err != nil {
 		return err
 	}
 
 	for i := range schema.AllOf {
 		sch := &(schema.AllOf[i])
-		if err := expandItems(sch, resolver); err != nil {
+		if err := expandSchemaItems(sch, resolver); err != nil {
 			return err
 		}
 		if sch.Ref.String() != "" || sch.Ref.IsRoot() {
@@ -410,7 +410,7 @@ func expandSchema(schema *Schema, resolver *schemaLoader) error {
 	}
 	for i := range schema.AnyOf {
 		sch := &(schema.AnyOf[i])
-		if err := expandItems(sch, resolver); err != nil {
+		if err := expandSchemaItems(sch, resolver); err != nil {
 			return err
 		}
 
@@ -423,7 +423,7 @@ func expandSchema(schema *Schema, resolver *schemaLoader) error {
 	}
 	for i := range schema.OneOf {
 		sch := &(schema.OneOf[i])
-		if err := expandItems(sch, resolver); err != nil {
+		if err := expandSchemaItems(sch, resolver); err != nil {
 			return err
 		}
 
@@ -436,7 +436,7 @@ func expandSchema(schema *Schema, resolver *schemaLoader) error {
 	}
 	if schema.Not != nil {
 		sch := schema.Not
-		if err := expandItems(sch, resolver); err != nil {
+		if err := expandSchemaItems(sch, resolver); err != nil {
 			return err
 		}
 
@@ -448,7 +448,7 @@ func expandSchema(schema *Schema, resolver *schemaLoader) error {
 		}
 	}
 	for k, v := range schema.Properties {
-		if err := expandItems(&v, resolver); err != nil {
+		if err := expandSchemaItems(&v, resolver); err != nil {
 			return err
 		}
 
@@ -461,7 +461,7 @@ func expandSchema(schema *Schema, resolver *schemaLoader) error {
 	}
 	if schema.AdditionalProperties != nil && schema.AdditionalProperties.Schema != nil {
 		sch := schema.AdditionalProperties.Schema
-		if err := expandItems(sch, resolver); err != nil {
+		if err := expandSchemaItems(sch, resolver); err != nil {
 			return err
 		}
 
@@ -471,7 +471,7 @@ func expandSchema(schema *Schema, resolver *schemaLoader) error {
 	}
 	for k, v := range schema.PatternProperties {
 		vp := &v
-		if err := expandItems(vp, resolver); err != nil {
+		if err := expandSchemaItems(vp, resolver); err != nil {
 			return err
 		}
 
@@ -485,7 +485,7 @@ func expandSchema(schema *Schema, resolver *schemaLoader) error {
 	for k, v := range schema.Dependencies {
 		if v.Schema != nil {
 			sch := v.Schema
-			if err := expandItems(sch, resolver); err != nil {
+			if err := expandSchemaItems(sch, resolver); err != nil {
 				return err
 			}
 			if sch.Ref.String() != "" || sch.Ref.IsRoot() {
@@ -499,7 +499,7 @@ func expandSchema(schema *Schema, resolver *schemaLoader) error {
 	}
 	if schema.AdditionalItems != nil && schema.AdditionalItems.Schema != nil {
 		sch := schema.AdditionalItems.Schema
-		if err := expandItems(sch, resolver); err != nil {
+		if err := expandSchemaItems(sch, resolver); err != nil {
 			return err
 		}
 
@@ -511,7 +511,7 @@ func expandSchema(schema *Schema, resolver *schemaLoader) error {
 		}
 	}
 	for k, v := range schema.Definitions {
-		if err := expandItems(&v, resolver); err != nil {
+		if err := expandSchemaItems(&v, resolver); err != nil {
 			return err
 		}
 		if v.Ref.String() != "" || v.Ref.IsRoot() {
